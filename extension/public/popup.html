@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<title>SyncWatch</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				scrollbar-width: thin;
+				scrollbar-color: #2a2f3f transparent;
+			}
+			::-webkit-scrollbar {
+				width: 8px;
+				height: 8px;
+			}
+			::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			::-webkit-scrollbar-thumb {
+				background: #2a2f3f;
+				border-radius: 8px;
+				border: 2px solid transparent;
+				background-clip: content-box;
+			}
+			::-webkit-scrollbar-thumb:hover {
+				background: #3a4052;
+				background-clip: content-box;
+			}
+			body {
+				font:
+					14px Inter,
+					system-ui,
+					-apple-system,
+					"Segoe UI",
+					sans-serif;
+				width: 300px;
+				margin: 0;
+				padding: 16px;
+				background: #0f1117;
+				color: #eceef5;
+				overflow-x: hidden;
+			}
+			[hidden] {
+				display: none !important;
+			}
+			svg {
+				fill: currentColor;
+				flex: none;
+			}
+			.brand {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin-bottom: 4px;
+			}
+			h1 {
+				font-size: 17px;
+				margin: 0;
+			}
+			.sub {
+				color: #9aa1b5;
+				font-size: 12px;
+				margin: 0 0 6px;
+			}
+			label {
+				display: block;
+				margin: 12px 0 5px;
+				font-size: 12px;
+				font-weight: 600;
+				color: #9aa1b5;
+			}
+			label svg {
+				vertical-align: -2px;
+				margin-right: 3px;
+			}
+			input {
+				width: 100%;
+				padding: 8px 10px;
+				border-radius: 8px;
+				border: 1px solid #2a2f3f;
+				background: #171a23;
+				color: #eceef5;
+				font: inherit;
+				outline: none;
+			}
+			input:focus {
+				border-color: #5eead4;
+			}
+			input:disabled {
+				opacity: 0.6;
+			}
+			.pw {
+				position: relative;
+			}
+			.pw input {
+				padding-right: 38px;
+			}
+			.eye {
+				position: absolute;
+				right: 4px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 30px;
+				height: 30px;
+				padding: 0;
+				display: grid;
+				place-items: center;
+				border: 0;
+				border-radius: 6px;
+				background: none;
+				color: #9aa1b5;
+				cursor: pointer;
+			}
+			.eye:hover {
+				color: #eceef5;
+				background: #232838;
+			}
+			#avatars {
+				display: flex;
+				gap: 6px;
+				margin-top: 8px;
+			}
+			#avatars button {
+				padding: 2px;
+				margin: 0;
+				width: auto;
+				border: 2px solid transparent;
+				border-radius: 50%;
+				background: none;
+				line-height: 0;
+				cursor: pointer;
+			}
+			#avatars button[aria-checked="true"] {
+				border-color: #5eead4;
+			}
+			#avatars button:disabled {
+				cursor: default;
+				opacity: 0.6;
+			}
+
+			#tabs {
+				display: flex;
+				gap: 4px;
+				margin-top: 14px;
+				padding: 3px;
+				border-radius: 10px;
+				background: #171a23;
+				border: 1px solid #2a2f3f;
+			}
+			#tabs button {
+				flex: 1;
+				padding: 7px 6px;
+				border: 0;
+				border-radius: 8px;
+				background: none;
+				color: #9aa1b5;
+				font: inherit;
+				font-size: 13px;
+				font-weight: 600;
+				cursor: pointer;
+			}
+			#tabs button[aria-selected="true"] {
+				background: #232838;
+				color: #eceef5;
+			}
+			#roomshead {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: 12px;
+				font-size: 12px;
+				font-weight: 600;
+				color: #9aa1b5;
+			}
+			#refresh {
+				border: 0;
+				background: none;
+				color: #5eead4;
+				font: inherit;
+				font-size: 12px;
+				cursor: pointer;
+				padding: 0;
+			}
+			#rooms {
+				margin-top: 6px;
+				max-height: 150px;
+				overflow-x: hidden;
+				overflow-y: auto;
+				display: grid;
+				gap: 4px;
+			}
+			.room {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				width: 100%;
+				min-width: 0;
+				padding: 7px 10px;
+				text-align: left;
+				border: 1px solid #2a2f3f;
+				border-radius: 8px;
+				background: #171a23;
+				color: #eceef5;
+				font: inherit;
+				cursor: pointer;
+			}
+			.room:hover {
+				background: #232838;
+			}
+			.room.sel {
+				border-color: #5eead4;
+			}
+			.room .nm {
+				flex: 1;
+				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				display: flex;
+				align-items: center;
+				gap: 5px;
+			}
+			.room .nm span {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.room .nm svg {
+				color: #fbbf24;
+			}
+			.room .col {
+				flex: 1;
+				min-width: 0;
+			}
+			.room small {
+				display: block;
+				color: #9aa1b5;
+				font-size: 11px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.room .meta {
+				color: #9aa1b5;
+				font-size: 12px;
+				white-space: nowrap;
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+			.hint {
+				color: #9aa1b5;
+				font-size: 12px;
+				margin-top: 6px;
+			}
+			.link {
+				border: 0;
+				background: none;
+				padding: 0;
+				color: #5eead4;
+				font: inherit;
+				cursor: pointer;
+			}
+			#toggle {
+				margin-top: 16px;
+				width: 100%;
+				padding: 10px;
+				border: 0;
+				border-radius: 10px;
+				background: #5eead4;
+				color: #04201c;
+				font: inherit;
+				font-weight: 700;
+				cursor: pointer;
+			}
+			#toggle.leave {
+				background: #e11d48;
+				color: #fff;
+			}
+			#status {
+				margin-top: 12px;
+				min-height: 2.4em;
+				color: #9aa1b5;
+				font-size: 13px;
+			}
+			.error {
+				color: #fb7185 !important;
+			}
+			#adv {
+				margin-top: 14px;
+				font-size: 12px;
+				color: #9aa1b5;
+			}
+			#adv summary {
+				cursor: pointer;
+				font-weight: 600;
+				user-select: none;
+			}
+			#adv summary:hover {
+				color: #eceef5;
+			}
+			#server-note {
+				margin: 6px 0 8px;
+			}
+			#server-save {
+				width: 100%;
+				padding: 7px;
+				border: 1px solid #2a2f3f;
+				border-radius: 8px;
+				background: #232838;
+				color: #eceef5;
+				font: inherit;
+				cursor: pointer;
+			}
+			#server-save:hover {
+				background: #2a2f3f;
+			}
+			#version {
+				margin-top: 14px;
+				text-align: center;
+				color: #5b6278;
+				font-size: 11px;
+			}
+			#mismatch {
+				margin-top: 12px;
+				padding: 10px;
+				border: 1px solid #fbbf24;
+				border-radius: 10px;
+				background: #1e1a10;
+			}
+			#mismatch-text {
+				font-size: 12px;
+				white-space: pre-line;
+				word-break: break-all;
+				color: #eceef5;
+			}
+			#go {
+				margin-top: 10px;
+				width: 100%;
+				padding: 8px;
+				border: 1px solid #2a2f3f;
+				border-radius: 8px;
+				background: #232838;
+				color: #eceef5;
+				font: inherit;
+				cursor: pointer;
+			}
+			#go:hover {
+				background: #2a2f3f;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="brand">
+			<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+				<rect width="26" height="26" rx="8" fill="#5EEAD4" />
+				<path d="M10 8.5v9l7.5-4.5z" fill="#04201C" />
+			</svg>
+			<h1>SyncWatch</h1>
+		</div>
+		<p class="sub">Mira videos en sincronía con tus amigos</p>
+		<label for="name">Tu apodo</label>
+		<input id="name" maxlength="20" placeholder="ej: Camilo" />
+		<div id="avatars" role="radiogroup" aria-label="Avatar"></div>
+
+		<div id="setup">
+			<div id="tabs" role="tablist">
+				<button id="tab-join" role="tab" type="button">
+					Buscar sala
+				</button>
+				<button id="tab-create" role="tab" type="button">
+					Crear sala
+				</button>
+			</div>
+
+			<div id="join-box">
+				<div id="roomshead">
+					<span>Salas activas</span
+					><button id="refresh" type="button">Actualizar</button>
+				</div>
+				<div id="rooms"></div>
+				<div id="join-pass" hidden>
+					<label for="join-password" id="join-password-label"></label>
+					<div class="pw">
+						<input
+							id="join-password"
+							type="password"
+							maxlength="64"
+							autocomplete="off"
+						/>
+						<button
+							class="eye"
+							type="button"
+							data-for="join-password"
+							aria-label="Mostrar contraseña"
+							title="Mostrar contraseña"
+						></button>
+					</div>
+				</div>
+			</div>
+
+			<div id="create-box" hidden>
+				<label for="room">Nombre de la sala</label>
+				<input
+					id="room"
+					maxlength="64"
+					placeholder="ej: noche-de-anime"
+				/>
+				<label for="create-password">Contraseña (opcional)</label>
+				<div class="pw">
+					<input
+						id="create-password"
+						type="password"
+						maxlength="64"
+						autocomplete="off"
+					/>
+					<button
+						class="eye"
+						type="button"
+						data-for="create-password"
+						aria-label="Mostrar contraseña"
+						title="Mostrar contraseña"
+					></button>
+				</div>
+			</div>
+		</div>
+
+		<button id="toggle">Unirme a la sala</button>
+		<div id="status"></div>
+		<div id="mismatch" hidden>
+			<div id="mismatch-text"></div>
+			<button id="go" type="button">Ir al video de la sala</button>
+		</div>
+		<details id="adv">
+			<summary>Ajustes avanzados</summary>
+			<label for="server">Servidor</label>
+			<input
+				id="server"
+				placeholder="wss://mi-servidor.ts.net"
+				autocomplete="off"
+				spellcheck="false"
+			/>
+			<div id="server-note" class="hint"></div>
+			<button id="server-save" type="button">Guardar servidor</button>
+		</details>
+		<div id="version"></div>
+		<script src="popup.js"></script>
+	</body>
+</html>
